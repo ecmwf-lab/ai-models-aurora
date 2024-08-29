@@ -57,7 +57,7 @@ optional-dependencies.dev = [
   "pre-commit",
 ]
 urls.Repository = "https://github.com/ecmwf-lab/ai-models-aurora"
-entry-points."ai_models.model".aurora = "ai_models_aurora.model:AuroraModel"
+entry-points."ai_models.model".aurora = "ai_models_aurora.model:model"
 
 [tool.setuptools_scm]
 version_file = "src/ai_models_aurora/_version.py"

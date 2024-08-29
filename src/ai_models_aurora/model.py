@@ -6,50 +6,53 @@
 # nor does it submit to any jurisdiction.
 
 import logging
+import os
+import pickle
 
 import numpy as np
 import torch
 from ai_models.model import Model
-from aurora import Aurora
 from aurora import Batch
 from aurora import Metadata
 from aurora import rollout
+from aurora.model.aurora import Aurora
+from aurora.model.aurora import AuroraHighRes
 
 LOG = logging.getLogger(__name__)
 
 
 class AuroraModel(Model):
 
+    download_url = "https://huggingface.co/microsoft/aurora/resolve/main/{file}"
+
     # Input
     area = [90, 0, -90, 360 - 0.25]
     grid = [0.25, 0.25]
 
     surf_vars = ("2t", "10u", "10v", "msl")
-    static_vars = ("lsm", "z", "slt")
     atmos_vars = ("z", "u", "v", "t", "q")
     levels = (1000, 925, 850, 700, 600, 500, 400, 300, 250, 200, 150, 100, 50)
 
     lagged = (-6, 0)
 
     #  For the MARS requets
-    param_sfc = surf_vars + static_vars
+    param_sfc = surf_vars
     param_level_pl = (atmos_vars, levels)
 
     # Output
 
     expver = "auro"
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.model = Aurora()
+    use_an = False
 
     def run(self):
-        LOG.info("Running Aurora model")
-        model = Aurora(use_lora=False)  # Model is not fine-tuned.
-        model = model.to(self.device)
-        LOG.info("Downloading Aurora model")
+
         # TODO: control location of cache
-        model.load_checkpoint("microsoft/aurora", "aurora-0.25-pretrained.ckpt")
+
+        model = self.klass(use_lora=False)
+        model = model.to(self.device)
+        LOG.info("Downloading Aurora model %s", self.checkpoint)
+        model.load_checkpoint("microsoft/aurora", self.checkpoint, strict=False)
         LOG.info("Loading Aurora model to device %s", self.device)
 
         model = model.to(self.device)
@@ -80,11 +83,10 @@ class AuroraModel(Model):
 
         # Shape (Lat, Lon)
         static_vars = {}
-        for k in self.static_vars:
-            f = fields_sfc.sel(param=k).order_by(valid_datetime="ascending")
-            f = f.to_numpy(**to_numpy_kwargs)[-1]
-            f = torch.from_numpy(f)
-            static_vars[k] = f
+        with open(os.path.join(self.assets, self.download_files[0]), "rb") as f:
+            static_vars = pickle.load(f)
+            for k, v in static_vars.items():
+                static_vars[k] = torch.from_numpy(v)
 
         # Shape (Batch, Time, Level, Lat, Lon)
         atmos_vars = {}
@@ -134,4 +136,64 @@ class AuroraModel(Model):
                     stepper(i, step)
 
 
-model = AuroraModel
+class Aurora2p5(AuroraModel):
+    klass = Aurora
+    download_files = ("aurora-0.25-static.pickle",)
+    # Input
+    area = [90, 0, -90, 360 - 0.25]
+    grid = [0.25, 0.25]
+
+
+# https://microsoft.github.io/aurora/models.html#aurora-0-25-pretrained
+class Aurora2p5Pretrained(Aurora2p5):
+    checkpoint = "aurora-0.25-pretrained.ckpt"
+
+
+class UseIFSMixin:
+    def patch_retrieve_request(self, r):
+        if r.get("class", "od") != "od":
+            return
+
+        if r.get("type", "an") not in ("an", "fc"):
+            return
+
+        if r.get("stream", "oper") not in ("oper", "scda"):
+            return
+
+        if self.use_an:
+            r["type"] = "an"
+        else:
+            r["type"] = "fc"
+
+        time = r.get("time", 12)
+
+        r["stream"] = {
+            0: "oper",
+            6: "scda",
+            12: "oper",
+            18: "scda",
+        }[time]
+
+
+# https://microsoft.github.io/aurora/models.html#aurora-0-25-fine-tuned
+class Aurora2p5FineTuned(UseIFSMixin, Aurora2p5):
+    checkpoint = "aurora-0.25-finetuned.ckpt"
+
+
+class Aurora0p1(AuroraModel):
+    klass = AuroraHighRes
+
+    download_files = ("aurora-0.1-static.pickle",)
+    # Input
+    area = [90, 0, -90, 360 - 0.1]
+    grid = [0.1, 0.1]
+
+
+# https://microsoft.github.io/aurora/models.html#aurora-0-1-fine-tuned
+class Aurora0p1FineTuned(UseIFSMixin, Aurora0p1):
+    klass = AuroraHighRes
+
+    checkpoint = "aurora-0.1-finetuned.ckpt"
+
+
+model = Aurora2p5FineTuned
