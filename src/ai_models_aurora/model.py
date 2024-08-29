@@ -61,10 +61,7 @@ class AuroraModel(Model):
         fields_pl = self.fields_pl
         fields_sfc = self.fields_sfc
 
-        N, W, S, E = self.area
-        WE, NS = self.grid
-        Nj = round((N - S) / NS) + 1
-        Ni = round((E - W) / WE) + 1
+        Nj, Ni = fields_pl[0].shape
 
         to_numpy_kwargs = dict(dtype=np.float32)
 
@@ -105,6 +102,8 @@ class AuroraModel(Model):
 
         # https://microsoft.github.io/aurora/batch.html
 
+        N, W, S, E = self.area
+
         batch = Batch(
             surf_vars=surf_vars,
             static_vars=static_vars,
@@ -117,6 +116,9 @@ class AuroraModel(Model):
             ),
         )
 
+        assert len(batch.metadata.lat) == Nj
+        assert len(batch.metadata.lon) == Ni
+
         LOG.info("Starting inference")
         with torch.inference_mode():
 
@@ -125,15 +127,25 @@ class AuroraModel(Model):
                     step = (i + 1) * 6
 
                     for k, v in pred.surf_vars.items():
-                        v = v.cpu().numpy()
-                        self.write(v, template=templates[k], step=step)
+                        data = np.squeeze(v.cpu().numpy())
+                        data = self.nan_extend(data)
+                        assert data.shape == (Nj, Ni)
+                        self.write(data, template=templates[k], step=step, check_nans=True)
 
                     for k, v in pred.atmos_vars.items():
                         v = v.cpu().numpy()
-                        for i, level in enumerate(self.levels):
-                            self.write(v[:, :, i], template=templates[(k, level)], step=step)
-
+                        for j, level in enumerate(self.levels):
+                            data = np.squeeze(v[:, :, j])
+                            data = self.nan_extend(data)
+                            assert data.shape == (Nj, Ni)
+                            self.write(data, template=templates[(k, level)], step=step, check_nans=True)
                     stepper(i, step)
+
+    def nan_extend(self, data):
+        return np.concatenate(
+            (data, np.full_like(data[[-1], :], np.nan, dtype=data.dtype)),
+            axis=0,
+        )
 
 
 class Aurora2p5(AuroraModel):
