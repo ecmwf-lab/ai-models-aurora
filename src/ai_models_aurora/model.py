@@ -202,10 +202,10 @@ class Aurora0p1(AuroraModel):
 
 
 # https://microsoft.github.io/aurora/models.html#aurora-0-1-fine-tuned
-class Aurora0p1FineTuned(UseIFSMixin, Aurora0p1):
+class Aurora0p1FineTuned(Aurora0p1):
     klass = AuroraHighRes
 
     checkpoint = "aurora-0.1-finetuned.ckpt"
 
 
-model = Aurora2p5FineTuned
+model = Aurora0p1FineTuned
