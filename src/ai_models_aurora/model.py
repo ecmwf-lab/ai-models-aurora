@@ -210,10 +210,16 @@ def model(model_version, **kwargs):
     # select with --model-version
 
     models = {
-        "0.25-pretrained": Aurora2p5Pretrained,
-        "0.25-finetuned": Aurora2p5FineTuned,
+        "2.5-pretrained": Aurora2p5Pretrained,
+        "2.5-finetuned": Aurora2p5FineTuned,
         "0.1-finetuned": Aurora0p1FineTuned,
         "default": Aurora0p1FineTuned,
         "latest": Aurora0p1FineTuned,  # Backward compatibility
     }
+
+    if model_version not in models:
+        LOG.error(f"Model version {model_version} not found, using default")
+        LOG.error(f"Available models: {list(models.keys())}")
+        raise ValueError(f"Model version {model_version} not found")
+
     return models[model_version](**kwargs)
