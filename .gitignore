@@ -165,3 +165,6 @@ slurm-*.out
 ?.*
 ?
 _version.py
+*.pickle
+hub/
+.vscode/settings.json

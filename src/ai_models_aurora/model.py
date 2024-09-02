@@ -43,13 +43,13 @@ class AuroraModel(Model):
 
     expver = "auro"
 
-    use_an = False
-
     def run(self):
 
         # TODO: control location of cache
 
-        model = self.klass(use_lora=False)
+        LOG.info(f"Model is {self.__class__.__name__}, use_lora={self.use_lora}")
+
+        model = self.klass(use_lora=self.use_lora)
         model = model.to(self.device)
         LOG.info("Downloading Aurora model %s", self.checkpoint)
         model.load_checkpoint("microsoft/aurora", self.checkpoint, strict=False)
@@ -158,10 +158,16 @@ class Aurora2p5(AuroraModel):
 
 # https://microsoft.github.io/aurora/models.html#aurora-0-25-pretrained
 class Aurora2p5Pretrained(Aurora2p5):
+    use_lora = False
     checkpoint = "aurora-0.25-pretrained.ckpt"
 
 
-class UseIFSMixin:
+# https://microsoft.github.io/aurora/models.html#aurora-0-25-fine-tuned
+class Aurora2p5FineTuned(Aurora2p5):
+    use_lora = True
+    checkpoint = "aurora-0.25-finetuned.ckpt"
+
+    # We want FC, step=0
     def patch_retrieve_request(self, r):
         if r.get("class", "od") != "od":
             return
@@ -172,10 +178,7 @@ class UseIFSMixin:
         if r.get("stream", "oper") not in ("oper", "scda"):
             return
 
-        if self.use_an:
-            r["type"] = "an"
-        else:
-            r["type"] = "fc"
+        r["type"] = "fc"
 
         time = r.get("time", 12)
 
@@ -187,25 +190,30 @@ class UseIFSMixin:
         }[time]
 
 
-# https://microsoft.github.io/aurora/models.html#aurora-0-25-fine-tuned
-class Aurora2p5FineTuned(UseIFSMixin, Aurora2p5):
-    checkpoint = "aurora-0.25-finetuned.ckpt"
-
-
-class Aurora0p1(AuroraModel):
-    klass = AuroraHighRes
-
+# https://microsoft.github.io/aurora/models.html#aurora-0-1-fine-tuned
+class Aurora0p1FineTuned(AuroraModel):
     download_files = ("aurora-0.1-static.pickle",)
     # Input
     area = [90, 0, -90, 360 - 0.1]
     grid = [0.1, 0.1]
 
-
-# https://microsoft.github.io/aurora/models.html#aurora-0-1-fine-tuned
-class Aurora0p1FineTuned(Aurora0p1):
     klass = AuroraHighRes
-
+    use_lora = True
     checkpoint = "aurora-0.1-finetuned.ckpt"
 
 
-model = Aurora0p1FineTuned
+# model = Aurora0p1FineTuned
+
+
+def model(model_version, **kwargs):
+
+    # select with --model-version
+
+    models = {
+        "0.25-pretrained": Aurora2p5Pretrained,
+        "0.25-finetuned": Aurora2p5FineTuned,
+        "0.1-finetuned": Aurora0p1FineTuned,
+        "default": Aurora0p1FineTuned,
+        "latest": Aurora0p1FineTuned,  # Backward compatibility
+    }
+    return models[model_version](**kwargs)
