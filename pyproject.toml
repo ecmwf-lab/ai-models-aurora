@@ -18,7 +18,7 @@ requires = [
 [project]
 name = "ai-models-aurora"
 
-description = "An ai-models plugin to run MicroSoft's Aurora model"
+description = "An ai-models plugin to run Microsoft's Aurora model"
 keywords = [
   "ai",
   "tools",
@@ -50,7 +50,7 @@ dynamic = [
 ]
 dependencies = [
   "microsoft-aurora",
-"ai-models>=0.6.4"
+  "ai-models>=0.6.4"
 ]
 
 optional-dependencies.dev = [
