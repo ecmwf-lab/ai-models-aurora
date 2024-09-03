@@ -1,6 +1,6 @@
 # ai-models-aurora
 
-ai-models-graphcast is an [ai-models](https://github.com/ecmwf-lab/ai-models) plugin to run Microsoft's [Aurora](https://github.com/microsoft/aurora).
+ai-models-aurora is an [ai-models](https://github.com/ecmwf-lab/ai-models) plugin to run Microsoft's [Aurora](https://github.com/microsoft/aurora).
 
 [Aurora, arXiv:2405.13063](https://arxiv.org/abs/2405.13063)
 
