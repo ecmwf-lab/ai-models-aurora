@@ -1,3 +1,8 @@
+
+> [!CAUTION]
+> Please to not install from Pypi, the package there with the same name is not this one.
+
+
 # ai-models-aurora
 
 ai-models-aurora is an [ai-models](https://github.com/ecmwf-lab/ai-models) plugin to run Microsoft's [Aurora](https://github.com/microsoft/aurora).
