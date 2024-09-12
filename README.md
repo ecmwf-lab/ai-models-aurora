@@ -12,10 +12,5 @@ The model weights are made available for use under the terms of the Creative Com
 
 ## Installation
 
-To install the package, run:
-
-```bash
-pip install ai-models-aurora
-```
-
-This will install the package and its dependencies.
+> [!CAUTION]
+> Please to not install from Pypi, the package there with the same name is not this one.
