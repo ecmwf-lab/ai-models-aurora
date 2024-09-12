@@ -1,6 +1,6 @@
 
 > [!CAUTION]
-> Please to not install from Pypi, the package there with the same name is not this one.
+> Please do not install from Pypi, the package there with the same name is not this one.
 
 
 # ai-models-aurora
@@ -18,4 +18,4 @@ The model weights are made available for use under the terms of the Creative Com
 ## Installation
 
 > [!CAUTION]
-> Please to not install from Pypi, the package there with the same name is not this one.
+> Please do not install from Pypi, the package there with the same name is not this one.
