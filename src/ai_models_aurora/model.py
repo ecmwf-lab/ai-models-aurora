@@ -51,8 +51,19 @@ class AuroraModel(Model):
 
         model = self.klass(use_lora=self.use_lora)
         model = model.to(self.device)
-        LOG.info("Downloading Aurora model %s", self.checkpoint)
-        model.load_checkpoint("microsoft/aurora", self.checkpoint, strict=False)
+
+        path = os.path.join(self.assets, os.path.basename(self.checkpoint))
+        if os.path.exists(path):
+            LOG.info("Loading Aurora model from %s", path)
+            model.load_checkpoint_local(path, strict=False)
+        else:
+            LOG.info("Downloading Aurora model %s", self.checkpoint)
+            try:
+                model.load_checkpoint("microsoft/aurora", self.checkpoint, strict=False)
+            except Exception:
+                LOG.error("Did not find a local copy at %s", path)
+                raise
+
         LOG.info("Loading Aurora model to device %s", self.device)
 
         model = model.to(self.device)
