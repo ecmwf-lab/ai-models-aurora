@@ -1,7 +1,9 @@
 
 > [!CAUTION]
 > Please do not install from Pypi, the package there with the same name is not this one.
-
+> To install, run:
+> 
+> `pip install git+https://github.com/ecmwf-lab/ai-models-aurora.git`
 
 # ai-models-aurora
 
@@ -20,4 +22,5 @@ The model weights are made available for use under the terms of the Creative Com
 > [!CAUTION]
 > Please do not install from Pypi, the package there with the same name is not this one.
 > To install, run:
+> 
 > `pip install git+https://github.com/ecmwf-lab/ai-models-aurora.git`
