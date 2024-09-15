@@ -42,14 +42,17 @@ class AuroraModel(Model):
     # Output
 
     expver = "auro"
+    lora = None
 
     def run(self):
 
         # TODO: control location of cache
 
-        LOG.info(f"Model is {self.__class__.__name__}, use_lora={self.use_lora}")
+        use_lora = self.lora if self.lora is not None else self.use_lora
 
-        model = self.klass(use_lora=self.use_lora)
+        LOG.info(f"Model is {self.__class__.__name__}, use_lora={use_lora}")
+
+        model = self.klass(use_lora=use_lora)
         model = model.to(self.device)
 
         path = os.path.join(self.assets, os.path.basename(self.checkpoint))
@@ -156,6 +159,16 @@ class AuroraModel(Model):
         return np.concatenate(
             (data, np.full_like(data[[-1], :], np.nan, dtype=data.dtype)),
             axis=0,
+        )
+
+    def add_model_args(self, parser):
+        parser.add_argument(
+            "--lora",
+            type=lambda x: (str(x).lower() in ["true", "1", "yes"]),
+            nargs="?",
+            const=True,
+            default=None,
+            help="Use LoRA model (true/false). Default depends on the model.",
         )
 
 
