@@ -1,10 +1,3 @@
-
-> [!CAUTION]
-> Please do not install from Pypi, the package there with the same name is not this one.
-> To install, run:
->
-> `pip install git+https://github.com/ecmwf-lab/ai-models-aurora.git`
-
 # ai-models-aurora
 
 ai-models-aurora is an [ai-models](https://github.com/ecmwf-lab/ai-models) plugin to run Microsoft's [Aurora](https://github.com/microsoft/aurora).
@@ -19,8 +12,8 @@ The model weights are made available for use under the terms of the Creative Com
 
 ## Installation
 
-> [!CAUTION]
-> Please do not install from Pypi, the package there with the same name is not this one.
-> To install, run:
->
-> `pip install git+https://github.com/ecmwf-lab/ai-models-aurora.git`
+To install the package, run:
+
+```bash
+pip install ai-models-aurora
+```
