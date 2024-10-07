@@ -193,7 +193,7 @@ class Aurora0p25Pretrained(Aurora0p25):
 
 
 # https://microsoft.github.io/aurora/models.html#aurora-0-25-fine-tuned
-class Aurora025FineTuned(Aurora0p25):
+class Aurora0p25FineTuned(Aurora0p25):
     use_lora = True
     checkpoint = "aurora-0.25-finetuned.ckpt"
 
@@ -241,7 +241,7 @@ def model(model_version, **kwargs):
 
     models = {
         "0.25-pretrained": Aurora0p25Pretrained,
-        "0.25-finetuned": Aurora025FineTuned,
+        "0.25-finetuned": Aurora0p25FineTuned,
         "0.1-finetuned": Aurora0p1FineTuned,
         "default": Aurora0p1FineTuned,
         "latest": Aurora0p1FineTuned,  # Backward compatibility

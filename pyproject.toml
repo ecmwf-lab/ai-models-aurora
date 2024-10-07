@@ -60,8 +60,8 @@ optional-dependencies.dev = [
 urls.Repository = "https://github.com/ecmwf-lab/ai-models-aurora"
 entry-points."ai_models.model".aurora = "ai_models_aurora.model:model"
 entry-points."ai_models.model"."aurora-0.1-finetuned" = "ai_models_aurora.model:Aurora0p1FineTuned"
-entry-points."ai_models.model"."aurora-2.5-finetuned" = "ai_models_aurora.model:Aurora2p5FineTuned"
-entry-points."ai_models.model"."aurora-2.5-pretrained" = "ai_models_aurora.model:Aurora2p5Pretrained"
+entry-points."ai_models.model"."aurora-2.5-finetuned" = "ai_models_aurora.model:Aurora0p25FineTuned"
+entry-points."ai_models.model"."aurora-2.5-pretrained" = "ai_models_aurora.model:Aurora0p25Pretrained"
 
 [tool.setuptools_scm]
 version_file = "src/ai_models_aurora/_version.py"
