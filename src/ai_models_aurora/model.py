@@ -179,6 +179,8 @@ class AuroraModel(Model):
 
 
 class Aurora0p25(AuroraModel):
+    expver = "au25"
+
     klass = Aurora
     download_files = ("aurora-0.25-static.pickle",)
     # Input
